@@ -6,6 +6,7 @@ package com.example.kiosk_v1;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Dialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -78,6 +79,8 @@ public class MainActivity extends AppCompatActivity {
                 Item clickedItem = (Item) parent.getItemAtPosition(position);
                 //클릭된 메뉴 아이템 정보를 장바구니에 추가하는 로직(하단에 메서드 정의)
                 addToCart(clickedItem);
+                //클릭된 메뉴 아이템의 옵션창을 띄어주는 로직(하단에 메서드 정의)
+                showOption(clickedItem);
             }
         });
 
@@ -317,7 +320,52 @@ public class MainActivity extends AppCompatActivity {
         totalnum.setText("총"+String.valueOf(childCount)+"개 결제");
 
         TextView totalamount=fl3.findViewById(R.id.total_payment_amount);
-        totalamount.setText(String.valueOf(sum)+"원");///////////초반에 아이템 클릭하는것만 합계가 되고 플러스 버튼 눌러준 값은 미반영됨, 수정 필요****
+        totalamount.setText(String.valueOf(sum)+"원");///////////초반에 아이템 클릭하는것만 합계가 되고 플러스 버튼 눌러준 값은 미반영됨, 수정 필요*************
     }
+
+    private void showOption(Item clickedItem) {
+
+        // 아이템의 제목과 부제목을 가져옵니다 where? Item 클래스의 인스턴스에 있는 메서드(getTitle, getSubtitle)로 가져옴
+        // 옵션창 내에서 활용하기
+        int imageResId = clickedItem.getImageResId();
+        String title = clickedItem.getTitle();
+        String subtitle = clickedItem.getSubtitle();
+
+        // 옵션 다이얼로그를 생성하고 레이아웃을 설정합니다
+        final Dialog optionDialog=new Dialog(this);
+
+        // 다이얼로그 내의 레이아웃을 가져옵니다
+        ConstraintLayout optionLayout = (ConstraintLayout)getLayoutInflater().inflate(R.layout.option_frame,null);
+
+        // 레이아웃 내의 위젯을 가져옵니다
+        ImageView imageView = optionLayout.findViewById(R.id.imageView2);
+        TextView titleTextView = optionLayout.findViewById(R.id.textView2);
+        TextView subtitleTextView = optionLayout.findViewById(R.id.textView3);
+
+        // 위젯에 데이터를 설정합니다
+        imageView.setImageResource(imageResId);
+        titleTextView.setText(title);
+        subtitleTextView.setText(subtitle+"원");
+
+        //HOT/ICE 옵션 추가하기
+        LinearLayout item_add_line_1=optionLayout.findViewById(R.id.line_1);
+        LinearLayout optionItem=(LinearLayout)getLayoutInflater().inflate(R.layout.option_item,null);
+        item_add_line_1.addView(optionItem);
+
+
+        //종료 버튼 이벤트
+        Button closebutton=optionLayout.findViewById(R.id.button);
+        closebutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                optionDialog.dismiss();
+            }
+        });
+
+        optionDialog.setContentView(optionLayout);
+        optionDialog.show();
+
+    }
+
 }
 
