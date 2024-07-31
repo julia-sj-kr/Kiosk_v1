@@ -5,8 +5,9 @@
     android:background="#EBB6B6">
 
     <GridView
+        android:id="@+id/gridView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:horizontalSpacing="10dp"
         android:numColumns="4"
         android:stretchMode="columnWidth"

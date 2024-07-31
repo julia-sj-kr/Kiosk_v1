@@ -8,23 +8,33 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.google.android.material.tabs.TabLayout;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
     FrameLayout fl;
     TabLayout tb;
+    TableLayout fl2;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -34,11 +44,12 @@ public class MainActivity extends AppCompatActivity {
 
         tb=findViewById(R.id.kiosk_menu);
         fl=findViewById(R.id.frame);
+        fl2=findViewById(R.id.frame_below);
 
         //메뉴 첫 화면
         fl.removeAllViews();
-        RelativeLayout framebest=(RelativeLayout)getLayoutInflater().inflate(R.layout.frame_best,null);
-        GridView gv=framebest.findViewById(R.id.gridView);
+        ConstraintLayout layout=(ConstraintLayout)getLayoutInflater().inflate(R.layout.frame_best,null);
+        GridView gv=layout.findViewById(R.id.gridView);
 
         // 데이터(아이템) 내용
         Item[] items = {
@@ -53,9 +64,19 @@ public class MainActivity extends AppCompatActivity {
                 new Item(R.drawable.caffelatte, "카페라떼", "3000"),
                 new Item(R.drawable.chocolatte, "초코라떼", "4000"),
         };
+
         CustomList adapter=new CustomList(MainActivity.this,items);//<=커스텀어댑터를 생성한다.(커스텀어댑터는 아래에서 함수로 정의)
         gv.setAdapter(adapter);
-        fl.addView(framebest);
+        fl.addView(layout);
+
+        gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Item clickedItem = (Item) parent.getItemAtPosition(position);
+                //클릭된 메뉴 아이템 정보를 장바구니에 추가하는 로직(하단에 메서드 정의)
+                addToCart(clickedItem);
+            }
+        });
 
         //메뉴탭 누르면 화면전환
         tb.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -79,8 +100,8 @@ public class MainActivity extends AppCompatActivity {
                     // RecyclerView, ListView, GridView와 같은 뷰 그룹에서 데이터를 표시할 때 어댑터를 사용합니다. 어댑터는 데이터를 바탕으로 뷰를 생성하고 관리합니다.
 
                     fl.removeAllViews();
-                    RelativeLayout framebest=(RelativeLayout)getLayoutInflater().inflate(R.layout.frame_best,null);
-                    GridView gv=framebest.findViewById(R.id.gridView);
+                    ConstraintLayout layout=(ConstraintLayout)getLayoutInflater().inflate(R.layout.frame_best,null);
+                    GridView gv=layout.findViewById(R.id.gridView);
 
                     // 데이터(아이템) 내용
                     Item[] items = {
@@ -100,12 +121,52 @@ public class MainActivity extends AppCompatActivity {
                     // 어댑터를 사용하여 그리드뷰에 데이터(아이템) 표시 해주기
                     CustomList adapter=new CustomList(MainActivity.this,items);//<=커스텀어댑터를 생성한다.(커스텀어댑터는 아래에서 함수로 정의)
                     gv.setAdapter(adapter);
-                    fl.addView(framebest);
+                    fl.addView(layout);
 
+                    gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            Item clickedItem = (Item) parent.getItemAtPosition(position);
+                            addToCart(clickedItem);
+
+//                            TableRow tableRow = (TableRow) getLayoutInflater().inflate(R.layout.order_item, null, false);
+//
+//                            TextView itemOrdered = tableRow.findViewById(R.id.itemOrdered);
+//                            Button btnDecItem = tableRow.findViewById(R.id.btnDecItem);
+//                            TextView itemCnt = tableRow.findViewById(R.id.itemCnt);
+//                            Button btnIncItem = tableRow.findViewById(R.id.btnIncItem);
+//                            TextView priceOrdered = tableRow.findViewById(R.id.priceOrdered);
+//                            Button btnCancelItem = tableRow.findViewById(R.id.btnCancelItem);
+//
+//                            fl2.addView(tableRow);
+
+                        }
+                    });
                 }
                 if (position==1){
                     fl.removeAllViews();
-                    fl.addView(getLayoutInflater().inflate(R.layout.frame_coffee,null));
+                    ConstraintLayout layout=(ConstraintLayout)getLayoutInflater().inflate(R.layout.frame_coffee,null);
+                    GridView gv=layout.findViewById(R.id.gridView);
+
+                    Item[] items = {
+                            new Item(R.drawable.americano, "아메리카노", "3500"),
+                            new Item(R.drawable.caffelatte, "카페라떼", "3000"),
+                            new Item(R.drawable.vanillalatte, "바닐라라떼", "5500"),
+                            new Item(R.drawable.caffelatte, "카페라떼", "3000"),
+                            new Item(R.drawable.caramelmacchiato, "카라멜마끼아또", "4000"),
+                    };
+
+                    CustomList adapter=new CustomList(MainActivity.this,items);
+                    gv.setAdapter(adapter);
+                    fl.addView(layout);
+
+                    gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            Item clickedItem = (Item) parent.getItemAtPosition(position);
+                            addToCart(clickedItem);
+                        }
+                    });
                 }
                 if (position==2){
                     fl.removeAllViews();
@@ -165,7 +226,63 @@ public class MainActivity extends AppCompatActivity {
 
             return gridView;
         }
+    }
 
+    private void addToCart(Item clickedItem) {
+        // 장바구니에 추가하는 로직을 여기에 작성합니다.
+        // 아이템의 제목과 부제목을 가져옵니다 where? Item 클래스의 인스턴스에 있는 메서드(getTitle, getSubtitle)로 가져옴
+        String title = clickedItem.getTitle();
+        String subtitle = clickedItem.getSubtitle();
+
+        // 제목과 부제목을 포함한 Toast 메시지를 표시합니다
+        Toast.makeText(MainActivity.this, "Clicked: " + title + " , " + subtitle, Toast.LENGTH_SHORT).show();
+
+        //장바구니에 클릭한 아이템 담기
+        TableRow tableRow = (TableRow) getLayoutInflater().inflate(R.layout.order_item, null, false);
+
+        TextView itemOrdered = tableRow.findViewById(R.id.itemOrdered);
+        Button btnDecItem = tableRow.findViewById(R.id.btnDecItem);
+        TextView itemCnt = tableRow.findViewById(R.id.itemCnt);
+        Button btnIncItem = tableRow.findViewById(R.id.btnIncItem);
+        TextView priceOrdered = tableRow.findViewById(R.id.priceOrdered);
+        Button btnCancelItem = tableRow.findViewById(R.id.btnCancelItem);
+
+        // 수량을 1로 초기화합니다
+        itemCnt.setText("1");
+
+        // 수량 증가 버튼 클릭 리스너 설정
+        btnIncItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 현재 수량을 가져와서 증가시킵니다
+                int count = Integer.parseInt(itemCnt.getText().toString());
+                itemCnt.setText(String.valueOf(count + 1));
+            }
+        });
+
+        // 수량 감소 버튼 클릭 리스너 설정
+        btnDecItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 현재 수량을 가져와서 감소시킵니다 (수량이 1보다 작은 경우 감소하지 않음)
+                int count = Integer.parseInt(itemCnt.getText().toString());
+                if (count > 1) {
+                    itemCnt.setText(String.valueOf(count - 1));
+                }
+            }
+        });
+
+        btnCancelItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                fl2.removeView(tableRow);
+            }
+        });
+
+        itemOrdered.setText(title);
+        priceOrdered.setText(subtitle);
+
+        fl2.addView(tableRow);
     }
 }
 
