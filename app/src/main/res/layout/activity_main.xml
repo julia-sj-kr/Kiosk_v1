@@ -71,10 +71,46 @@
             android:background="#CFD58E" />
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:id="@+id/frame_last"
+            android:layout_width="10dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="#4CAF50"
-            android:orientation="vertical"></LinearLayout>
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/total_orders_num"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="총 0개 결제"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/total_payment_amount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="***원"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/total_delete"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.1"
+                android:onClick="all_delete_onclick"
+                android:text="전체삭제" />
+
+            <Button
+                android:id="@+id/payment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="결제" />
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

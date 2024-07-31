@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     FrameLayout fl;
     TabLayout tb;
     TableLayout fl2;
+    LinearLayout fl3;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -45,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
         tb=findViewById(R.id.kiosk_menu);
         fl=findViewById(R.id.frame);
         fl2=findViewById(R.id.frame_below);
+        fl3=findViewById(R.id.frame_last);
 
         //메뉴 첫 화면
         fl.removeAllViews();
@@ -198,6 +201,13 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    //장바구니 전체 삭제
+    public void all_delete_onclick(View view) {
+        fl2.removeAllViews();
+        TextView totalnum= fl3.findViewById(R.id.total_orders_num);
+        totalnum.setText("총 0개 결제");
+    }
+
     ///ArrayAdapter을 상속할때 <>안에 타입 맞춰주기
     public class CustomList extends ArrayAdapter<Item>{
 
@@ -249,6 +259,8 @@ public class MainActivity extends AppCompatActivity {
 
         // 수량을 1로 초기화합니다
         itemCnt.setText("1");
+        itemOrdered.setText(title);
+        priceOrdered.setText(subtitle);
 
         // 수량 증가 버튼 클릭 리스너 설정
         btnIncItem.setOnClickListener(new View.OnClickListener() {
@@ -256,7 +268,13 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // 현재 수량을 가져와서 증가시킵니다
                 int count = Integer.parseInt(itemCnt.getText().toString());
-                itemCnt.setText(String.valueOf(count + 1));
+                int nPrice=Integer.parseInt(priceOrdered.getText().toString());
+                int uintPrice=nPrice/count;
+                count++;
+                nPrice=uintPrice*count;
+
+                itemCnt.setText(""+count);
+                priceOrdered.setText(String.valueOf(nPrice));
             }
         });
 
@@ -266,8 +284,14 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // 현재 수량을 가져와서 감소시킵니다 (수량이 1보다 작은 경우 감소하지 않음)
                 int count = Integer.parseInt(itemCnt.getText().toString());
-                if (count > 1) {
-                    itemCnt.setText(String.valueOf(count - 1));
+                int nPrice=Integer.parseInt(priceOrdered.getText().toString());
+                int uintPrice=nPrice/count;
+                count--;
+                nPrice=uintPrice*count;
+
+                if (count >= 1) {
+                    itemCnt.setText(""+count);
+                    priceOrdered.setText(String.valueOf(nPrice));
                 }
             }
         });
@@ -278,11 +302,22 @@ public class MainActivity extends AppCompatActivity {
                 fl2.removeView(tableRow);
             }
         });
+        fl2.addView(tableRow);////////////////////////////////테이블 레이아웃에 테이블로우 inflate 담기
 
-        itemOrdered.setText(title);
-        priceOrdered.setText(subtitle);
+        int sum=0;
+        int childCount=fl2.getChildCount();
 
-        fl2.addView(tableRow);
+        for(int i=0;i<fl2.getChildCount();i++) { //getChildCount()=> 뷰 그룹내에 있는 자식 뷰의 개수를 반환
+            TableRow tr = (TableRow)fl2.getChildAt(i); //getChildAt(int index) 메서드는 ViewGroup 클래스에 속한 메서드로, 특정 인덱스에 위치한 자식 뷰를 반환합니다.
+            TextView tv = tr.findViewById(R.id.priceOrdered);
+            sum+= Integer.parseInt(tv.getText().toString());
+        }
+
+        TextView totalnum= fl3.findViewById(R.id.total_orders_num);
+        totalnum.setText("총"+String.valueOf(childCount)+"개 결제");
+
+        TextView totalamount=fl3.findViewById(R.id.total_payment_amount);
+        totalamount.setText(String.valueOf(sum)+"원");///////////초반에 아이템 클릭하는것만 합계가 되고 플러스 버튼 눌러준 값은 미반영됨, 수정 필요****
     }
 }
 

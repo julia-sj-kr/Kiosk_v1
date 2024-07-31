@@ -3,60 +3,84 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/itemOrdered"
+    <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_weight="1"
-        android:paddingLeft="10dp"
-        android:text="TextView"
-        android:textColor="#0B0B0B" />
+        android:orientation="vertical">
 
-    <Button
-        android:id="@+id/btnDecItem"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:minWidth="0dip"
-        android:minHeight="0dip"
-        android:padding="0dp"
-        android:text="-" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/itemCnt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:text="TextView"
-        android:textColor="#0B0B0B" />
+            <TextView
+                android:id="@+id/itemOrdered"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingLeft="10dp"
+                android:text="TextView"
+                android:textColor="#0B0B0B" />
 
-    <Button
-        android:id="@+id/btnIncItem"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:minWidth="0dip"
-        android:minHeight="0dip"
-        android:padding="0dp"
-        android:text="+" />
+            <Button
+                android:id="@+id/btnDecItem"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:minWidth="0dip"
+                android:minHeight="0dip"
+                android:padding="0dp"
+                android:text="-" />
 
-    <TextView
-        android:id="@+id/priceOrdered"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:text="TextView"
-        android:textColor="#0B0B0B" />
+            <TextView
+                android:id="@+id/itemCnt"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="TextView"
+                android:textColor="#0B0B0B" />
 
-    <Button
-        android:id="@+id/btnCancelItem"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:minWidth="0dip"
-        android:minHeight="0dip"
-        android:padding="0dp"
-        android:text="x" />
+            <Button
+                android:id="@+id/btnIncItem"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:minWidth="0dip"
+                android:minHeight="0dip"
+                android:padding="0dp"
+                android:text="+" />
+
+            <TextView
+                android:id="@+id/priceOrdered"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="TextView"
+                android:textColor="#0B0B0B" />
+
+            <Button
+                android:id="@+id/btnCancelItem"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:minWidth="0dip"
+                android:minHeight="0dip"
+                android:padding="0dp"
+                android:text="x" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="옵션선택내용"
+            android:textColor="#185F1B" />
+    </LinearLayout>
+
 </TableRow>
