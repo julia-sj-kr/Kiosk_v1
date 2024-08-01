@@ -41,6 +41,9 @@ public class MainActivity extends AppCompatActivity {
     TableLayout fl2;
     LinearLayout fl3;
 
+    private TextView txt1;
+    private TextView txt2;
+
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
         fl=findViewById(R.id.frame);
         fl2=findViewById(R.id.frame_below);
         fl3=findViewById(R.id.frame_last);
+        txt1=findViewById(R.id.total_orders_num);
+        txt2=findViewById(R.id.total_payment_amount);
 
         //메뉴 첫 화면
         fl.removeAllViews();
@@ -249,17 +254,29 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void addToCart(Item clickedItem,TextView recording) {
+    //선택한 옵션 모두 나열하기
+    public String printOptionSet(String[][] optionSet){
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < optionSet.length; i++) {
+            for (int j = 0; j < optionSet[i].length; j++) {
+                if (optionSet[i][j]==null) continue;
+                result.append(optionSet[i][j]);
+                result.append(" ");
+            }
+        }
 
-        String option= recording.getText().toString();
+        // 마지막 공백 제거
+        if (result.length() > 0) {
+            result.setLength(result.length() - 1);
+        }
 
-        // 장바구니에 추가하는 로직을 여기에 작성합니다.
-        // 아이템의 제목과 부제목을 가져옵니다 where? Item 클래스의 인스턴스에 있는 메서드(getTitle, getSubtitle)로 가져옴
-        String title = clickedItem.getTitle();
-        String subtitle = clickedItem.getSubtitle();
+        return result.toString();
+    }
 
-        // 제목과 부제목을 포함한 Toast 메시지를 표시합니다
-        Toast.makeText(MainActivity.this, "Clicked: " + title + " , " + subtitle, Toast.LENGTH_SHORT).show();
+    private void addToCart(String title, String subtitle,String[][] optionSet) {
+
+
+        String options= printOptionSet(optionSet);
 
         //장바구니에 클릭한 아이템 담기
         TableRow tableRow = (TableRow) getLayoutInflater().inflate(R.layout.order_item, null, false);
@@ -274,9 +291,10 @@ public class MainActivity extends AppCompatActivity {
 
         // 수량을 1로 초기화합니다
         itemCnt.setText("1");
+
         itemOrdered.setText(title);
         priceOrdered.setText(subtitle);
-        optioins_recording.setText(option);
+        optioins_recording.setText(options);
 
         // 수량 증가 버튼 클릭 리스너 설정
         btnIncItem.setOnClickListener(new View.OnClickListener() {
@@ -291,6 +309,7 @@ public class MainActivity extends AppCompatActivity {
 
                 itemCnt.setText(""+count);
                 priceOrdered.setText(String.valueOf(nPrice));
+                calculateTotalPayment();
             }
         });
 
@@ -308,6 +327,7 @@ public class MainActivity extends AppCompatActivity {
                 if (count >= 1) {
                     itemCnt.setText(""+count);
                     priceOrdered.setText(String.valueOf(nPrice));
+                    calculateTotalPayment();
                 }
             }
         });
@@ -316,26 +336,31 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 fl2.removeView(tableRow);
+                calculateTotalPayment();
             }
         });
         fl2.addView(tableRow);////////////////////////////////테이블 레이아웃에 테이블로우 inflate 담기
 
-
-        int sum=0;
-        int childCount=fl2.getChildCount();
-
-        for(int i=0;i<fl2.getChildCount();i++) { //getChildCount()=> 뷰 그룹내에 있는 자식 뷰의 개수를 반환
-            TableRow tr = (TableRow)fl2.getChildAt(i); //getChildAt(int index) 메서드는 ViewGroup 클래스에 속한 메서드로, 특정 인덱스에 위치한 자식 뷰를 반환합니다.
-            TextView tv = tr.findViewById(R.id.priceOrdered);
-            sum+= Integer.parseInt(tv.getText().toString());
-        }
-
-        TextView totalnum= fl3.findViewById(R.id.total_orders_num);
-        totalnum.setText("총"+String.valueOf(childCount)+"개 결제");
-
-        TextView totalamount=fl3.findViewById(R.id.total_payment_amount);
-        totalamount.setText(String.valueOf(sum)+"원");///////////초반에 아이템 클릭하는것만 합계가 되고 플러스 버튼 눌러준 값은 미반영됨, 수정 필요*************
+        calculateTotalPayment();
     }
+
+    private void calculateTotalPayment(){
+        int itemCount = 0;
+        int totalPrice = 0;
+
+        for (int i = 0; i < fl2.getChildCount(); i++) {
+            TableRow row = (TableRow) fl2.getChildAt(i);
+            TextView countTextView = row.findViewById(R.id.itemCnt);
+            TextView priceTextView = row.findViewById(R.id.priceOrdered);
+            int count = Integer.parseInt(countTextView.getText().toString());
+            int price = Integer.parseInt(priceTextView.getText().toString());
+            itemCount += count;
+            totalPrice += price;
+        }
+        txt1.setText("총 " + itemCount + "개 결제");
+        txt2.setText(totalPrice + "원");
+    }
+
 
     private void showOption(Item clickedItem) {
 
@@ -361,11 +386,6 @@ public class MainActivity extends AppCompatActivity {
         titleTextView.setText(title);
         subtitleTextView.setText(subtitle+"원");
 
-        //HOT/ICE 옵션 추가하기(옵션항목을 inflater해서 뷰로 만들어 채워주는 방식)
-        //LinearLayout item_add_line_1=optionLayout.findViewById(R.id.line_1);
-        //LinearLayout optionItem=(LinearLayout)getLayoutInflater().inflate(R.layout.option_item,null);
-        //item_add_line_1.addView(optionItem);
-
         //HOT/ICE 옵션 추가하기(메뉴편집기에서 옵션배치 및 옵션정보를 넣어주어 자바에선 불러오기만)
         TextView option1_text = optionLayout.findViewById(R.id.option1_text);
         TextView option1_num = optionLayout.findViewById(R.id.option1_num);
@@ -375,11 +395,20 @@ public class MainActivity extends AppCompatActivity {
         TextView option2_num = optionLayout.findViewById(R.id.option2_num);
         LinearLayout option2=(LinearLayout)option2_text.getParent();
 
-        TableRow tableRow = (TableRow) getLayoutInflater().inflate(R.layout.order_item, null, false);
-        TextView optioins_recording=tableRow.findViewById(R.id.optioins_recording);
+        TextView option3_text = optionLayout.findViewById(R.id.option3_text);
+        TextView option3_num = optionLayout.findViewById(R.id.option3_num);
+        LinearLayout option3=(LinearLayout)option3_text.getParent();
+
+        TextView option4_text = optionLayout.findViewById(R.id.option4_text);
+        TextView option4_num = optionLayout.findViewById(R.id.option4_num);
+        LinearLayout option4=(LinearLayout)option4_text.getParent();
+
+        TextView option5_text = optionLayout.findViewById(R.id.option5_text);
+        TextView option5_num = optionLayout.findViewById(R.id.option5_num);
+        LinearLayout option5=(LinearLayout)option5_text.getParent();
 
         // 옵션 정보를 저장할 배열
-        final String[][] recording=new String[2][2];
+        final String[][] optionSet=new String[10][2];
         final boolean[] isOption1Active = {false};
         //ㄴ익명 내부 클래스 내에서 사용할 변수는 final로 선언할 수 없다. 이를 해결하기 위해 배열(참조 자체를 변경하지 않고 값을 변경할 수 있는 구조)을 사용할 수 있습니다.
 
@@ -390,8 +419,8 @@ public class MainActivity extends AppCompatActivity {
 
                 if (isOption1Active[0]) {
                     // 버튼이 활성화된 경우
-                recording[0][0] = option1_text.getText().toString();
-                recording[0][1] = option1_num.getText().toString();
+                    optionSet[0][0] = option1_text.getText().toString();
+                    optionSet[0][1] = option1_num.getText().toString();
 
                 // 테두리 색 변경
                 GradientDrawable border = new GradientDrawable();
@@ -401,8 +430,8 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     // 버튼이 비활성화된 경우
                     // recording 배열의 값을 빈 문자열로 설정
-                    recording[0][0] = "";
-                    recording[0][1] = "";
+                    optionSet[0][0] = "";
+                    optionSet[0][1] = "";
 
                     // 테두리 색 변경 (비활성화된 경우)
                     GradientDrawable border = new GradientDrawable();
@@ -420,8 +449,8 @@ public class MainActivity extends AppCompatActivity {
 
                 if (isOption1Active[0]) {
                     // 버튼이 활성화된 경우
-                    recording[1][0] = option2_text.getText().toString();
-                    recording[1][1] = option2_num.getText().toString();
+                    optionSet[1][0] = option2_text.getText().toString();
+                    optionSet[1][1] = option2_num.getText().toString();
 
                     // 테두리 색 변경
                     GradientDrawable border = new GradientDrawable();
@@ -431,8 +460,8 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     // 버튼이 비활성화된 경우
                     // recording 배열의 값을 빈 문자열로 설정
-                    recording[1][0] = "";
-                    recording[1][1] = "";
+                    optionSet[1][0] = "";
+                    optionSet[1][1] = "";
 
                     // 테두리 색 변경 (비활성화된 경우)
                     GradientDrawable border = new GradientDrawable();
@@ -443,15 +472,103 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        option3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isOption1Active[0] = !isOption1Active[0];
 
-        //선택완료 버튼 이벤트
+                if (isOption1Active[0]) {
+                    // 버튼이 활성화된 경우
+                    optionSet[2][0] = option3_text.getText().toString();
+                    optionSet[2][1] = option3_num.getText().toString();
+
+                    // 테두리 색 변경
+                    GradientDrawable border = new GradientDrawable();
+                    border.setColor(Color.TRANSPARENT); // 배경색을 투명으로 설정
+                    border.setStroke(5, Color.BLUE); // 테두리 두께와 색상 설정
+                    option3.setBackground(border);
+                } else {
+                    // 버튼이 비활성화된 경우
+                    // recording 배열의 값을 빈 문자열로 설정
+                    optionSet[2][0] = "";
+                    optionSet[2][1] = "";
+
+                    // 테두리 색 변경 (비활성화된 경우)
+                    GradientDrawable border = new GradientDrawable();
+                    border.setColor(Color.TRANSPARENT); // 배경색을 투명으로 설정
+                    border.setStroke(5, Color.GRAY); // 테두리 두께와 색상 설정 (비활성화 색상으로 변경)
+                    option3.setBackground(border);
+                }
+            }
+        });
+
+        option4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isOption1Active[0] = !isOption1Active[0];
+
+                if (isOption1Active[0]) {
+                    // 버튼이 활성화된 경우
+                    optionSet[3][0] = option4_text.getText().toString();
+                    optionSet[3][1] = option4_num.getText().toString();
+
+                    // 테두리 색 변경
+                    GradientDrawable border = new GradientDrawable();
+                    border.setColor(Color.TRANSPARENT); // 배경색을 투명으로 설정
+                    border.setStroke(5, Color.BLUE); // 테두리 두께와 색상 설정
+                    option4.setBackground(border);
+                } else {
+                    // 버튼이 비활성화된 경우
+                    // recording 배열의 값을 빈 문자열로 설정
+                    optionSet[3][0] = "";
+                    optionSet[3][1] = "";
+
+                    // 테두리 색 변경 (비활성화된 경우)
+                    GradientDrawable border = new GradientDrawable();
+                    border.setColor(Color.TRANSPARENT); // 배경색을 투명으로 설정
+                    border.setStroke(5, Color.GRAY); // 테두리 두께와 색상 설정 (비활성화 색상으로 변경)
+                    option4.setBackground(border);
+                }
+            }
+        });
+
+        option5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isOption1Active[0] = !isOption1Active[0];
+
+                if (isOption1Active[0]) {
+                    // 버튼이 활성화된 경우
+                    optionSet[4][0] = option5_text.getText().toString();
+                    optionSet[4][1] = option5_num.getText().toString();
+
+                    // 테두리 색 변경
+                    GradientDrawable border = new GradientDrawable();
+                    border.setColor(Color.TRANSPARENT); // 배경색을 투명으로 설정
+                    border.setStroke(5, Color.BLUE); // 테두리 두께와 색상 설정
+                    option5.setBackground(border);
+                } else {
+                    // 버튼이 비활성화된 경우
+                    // recording 배열의 값을 빈 문자열로 설정
+                    optionSet[4][0] = "";
+                    optionSet[4][1] = "";
+
+                    // 테두리 색 변경 (비활성화된 경우)
+                    GradientDrawable border = new GradientDrawable();
+                    border.setColor(Color.TRANSPARENT); // 배경색을 투명으로 설정
+                    border.setStroke(5, Color.GRAY); // 테두리 두께와 색상 설정 (비활성화 색상으로 변경)
+                    option5.setBackground(border);
+                }
+            }
+        });
+
+        //선택완료 버튼 위젯 가져오기
         Button closebutton=optionLayout.findViewById(R.id.button);
+        //선택완료 버튼 이벤트
         closebutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                optioins_recording.setText(recording[0][0] + ": " + recording[0][1]);
-                addToCart(clickedItem,optioins_recording);
-
+                addToCart(title,subtitle,optionSet);
                 optionDialog.dismiss();
             }
         });
